@@ -1,0 +1,102 @@
+# =============================================================
+# Locate Anything Assistant — Docker Compose
+# =============================================================
+# Starts: backend (FastAPI) + frontend (Vite/Nginx)
+#
+# GPU usage (requires nvidia-container-toolkit):
+#   docker compose --profile gpu up
+#
+# CPU only:
+#   docker compose up
+#
+# With local model weights mounted:
+#   MODEL_PATH=/models/LocateAnything-3B docker compose up
+# =============================================================
+
+version: "3.9"
+
+services:
+
+  # ------------------------------------------------------------------
+  # Backend — FastAPI + LocateAnything-3B
+  # ------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      # For GPU: set BASE_IMAGE to a CUDA image
+      # args:
+      #   BASE_IMAGE: nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+    image: locate-anything-backend:latest
+    container_name: locate-anything-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HF_HOME=/app/.cache/huggingface
+      - TRANSFORMERS_CACHE=/app/.cache/huggingface
+    volumes:
+      # Persist HuggingFace model downloads across restarts.
+      - hf_cache:/app/.cache/huggingface
+      # Optional: mount local model weights directory.
+      # - /path/to/local/LocateAnything-3B:/models/LocateAnything-3B:ro
+      # Then set MODEL_PATH=/models/LocateAnything-3B in .env
+      - ./backend/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+    # GPU profile — only activated when --profile gpu is passed
+    profiles: ["", "gpu"]
+    deploy:
+      resources:
+        reservations: {}
+        limits:
+          memory: 24G
+
+  # GPU-enabled backend variant
+  backend-gpu:
+    extends:
+      service: backend
+    container_name: locate-anything-backend-gpu
+    profiles: ["gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 32G
+
+  # ------------------------------------------------------------------
+  # Frontend — React/Vite served by Nginx
+  # ------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: locate-anything-frontend:latest
+    container_name: locate-anything-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    profiles: ["", "gpu"]
+
+# ------------------------------------------------------------------
+# Named volumes
+# ------------------------------------------------------------------
+volumes:
+  hf_cache:
+    driver: local

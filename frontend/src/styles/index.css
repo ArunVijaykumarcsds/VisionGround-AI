@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-nvidia-green hover:bg-green-500 text-black font-semibold
+           px-5 py-2.5 rounded-lg transition-all duration-200
+           disabled:opacity-40 disabled:cursor-not-allowed
+           active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-700 hover:bg-gray-600 text-gray-100 font-medium
+           px-4 py-2 rounded-lg transition-all duration-200
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-gray-900 border border-gray-700/50 rounded-xl p-4;
+  }
+
+  .input-field {
+    @apply w-full bg-gray-800 border border-gray-600 rounded-lg
+           px-4 py-2.5 text-gray-100 placeholder-gray-500
+           focus:outline-none focus:ring-2 focus:ring-nvidia-green/50
+           focus:border-nvidia-green/70 transition-all duration-150;
+  }
+}

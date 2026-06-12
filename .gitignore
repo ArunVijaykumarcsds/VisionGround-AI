@@ -1,0 +1,81 @@
+# =============================================================
+# Locate Anything Assistant — .gitignore
+# =============================================================
+
+# ── Python / Backend ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Virtual environments
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# Environment / secrets
+.env
+backend/.env
+frontend/.env
+*.env.local
+
+# Logs
+logs/
+*.log
+backend/logs/*.log
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# MyPy
+.mypy_cache/
+
+# ── Node / Frontend ────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+node_modules/
+
+# ── Model weights (LARGE — do not commit) ──────────────────
+# Download from HuggingFace Hub at runtime instead.
+*.safetensors
+*.bin
+*.pt
+*.pth
+model-*.safetensors
+model.safetensors.index.json
+
+# HuggingFace cache
+.cache/
+backend/.cache/
+**/huggingface/hub/
+
+# ── Docker ─────────────────────────────────────────────────
+.dockerignore
+
+# ── OS / Editor ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── Misc ────────────────────────────────────────────────────
+*.tmp
+*.bak
